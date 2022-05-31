@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Extracts useful impression data in an async fashion
  */
+
 public interface AsyncImpressionExtractor {
 
     /**
