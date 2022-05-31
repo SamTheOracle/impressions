@@ -6,26 +6,25 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import java.time.DayOfWeek;
+
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 
 @QuarkusTest
 public class ImpressionExtractorTest {
 
     @Inject
-    ImpressionExtractor impressionExtractor;
+    AsyncImpressionExtractor impressionExtractor;
 
     @Test
     @DisplayName("Should parse file correctly")
-    void shouldParseCorrectly(){
-        Set<DeviceImpression> deviceImpressions = impressionExtractor.deviceImpressions();
+    void shouldParseCorrectly() throws InterruptedException {
+        CompletionStage<Set<DeviceImpression>> deviceImpressionsCompletionStage = impressionExtractor.deviceImpressions();
+        Assertions.assertFalse(impressionExtractor.resourceReady());
+        Set<DeviceImpression> deviceImpressions = Assertions.assertDoesNotThrow(()->deviceImpressionsCompletionStage.toCompletableFuture().join());
+        Assertions.assertTrue(impressionExtractor.resourceReady());
         DeviceImpression testDeviceImpression = new DeviceImpression(10,5);
-        Assertions.assertNotNull(deviceImpressions);
+        Assertions.assertNotNull(deviceImpressionsCompletionStage);
         Assertions.assertTrue(deviceImpressions.contains(testDeviceImpression));
-        Assertions.assertThrows(Exception.class,()->deviceImpressions.add(testDeviceImpression));
-        Set<DayOfWeekImpression> dayOfWeekImpressions = impressionExtractor.dayOfWeekImpressions();
-        Assertions.assertNotNull(dayOfWeekImpressions);
-        Assertions.assertTrue(dayOfWeekImpressions.size()!=0);
-        Assertions.assertThrows(Exception.class,()->dayOfWeekImpressions.add(new DayOfWeekImpression(DayOfWeek.FRIDAY,12)));
     }
 }
