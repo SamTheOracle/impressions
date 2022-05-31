@@ -1,5 +1,9 @@
 package com.oracolo.data;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Month;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
@@ -35,10 +39,13 @@ public class ImpressionExtractorTest {
 		Set<DayOfWeekImpression> dayOfWeekImpressions = Assertions.assertDoesNotThrow(()->impressionExtractor.dayOfWeekImpressions().toCompletableFuture().join());
 		Assertions.assertFalse(dayOfWeekImpressions.isEmpty());
 		Assertions.assertTrue(dayOfWeekImpressions.size()<=7);
+		Assertions.assertTrue(dayOfWeekImpressions.contains(new DayOfWeekImpression(DayOfWeek.TUESDAY,1L)));
 		Set<HourOfDayImpression> hourOfDayImpressions = Assertions.assertDoesNotThrow(()->impressionExtractor.hourOfDayImpressions().toCompletableFuture().join());
 		Assertions.assertFalse(hourOfDayImpressions.isEmpty());
 		Assertions.assertTrue(hourOfDayImpressions.size()<=24);
+		Assertions.assertTrue(hourOfDayImpressions.contains(new HourOfDayImpression(LocalTime.of(22, 0,0,0),1L)));
 		Set<DayOfMonthImpression> dayOfMonthImpressions = Assertions.assertDoesNotThrow(()->impressionExtractor.dayOfMonthImpressions().toCompletableFuture().join());
 		Assertions.assertFalse(dayOfMonthImpressions.isEmpty());
+		Assertions.assertTrue(dayOfMonthImpressions.contains(new DayOfMonthImpression(LocalDate.of(2022, Month.MAY,31),1L)));
 	}
 }

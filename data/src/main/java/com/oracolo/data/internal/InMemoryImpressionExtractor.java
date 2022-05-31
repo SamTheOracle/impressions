@@ -24,6 +24,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -38,10 +39,10 @@ import java.util.stream.StreamSupport;
 final class InMemoryImpressionExtractor implements AsyncImpressionExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryImpressionExtractor.class.getName());
 
-    private static  Set<HourOfDayImpression> IMMUTABLE_HOUR_OF_DAY_IMPRESSIONS;
-    private static Set<DayOfMonthImpression> IMMUTABLE_DAY_OF_MONTH_IMPRESSIONS;
-    private static Set<DayOfWeekImpression> IMMUTABLE_WEEKDAY_IMPRESSIONS;
-    private static Set<DeviceImpression> IMMUTABLE_DEVICE_IMPRESSIONS;
+    private static Set<HourOfDayImpression> IMMUTABLE_HOUR_OF_DAY_IMPRESSIONS = Collections.emptySet();
+    private static Set<DayOfMonthImpression> IMMUTABLE_DAY_OF_MONTH_IMPRESSIONS = Collections.emptySet();
+    private static Set<DayOfWeekImpression> IMMUTABLE_WEEKDAY_IMPRESSIONS = Collections.emptySet();
+    private static Set<DeviceImpression> IMMUTABLE_DEVICE_IMPRESSIONS = Collections.emptySet();
 
 
     @ConfigProperty(name = "impressions.file-path")
@@ -57,6 +58,7 @@ final class InMemoryImpressionExtractor implements AsyncImpressionExtractor {
 
     @PostConstruct
     void grindData() {
+        LOGGER.info("Started {} with csv {}", this.getClass().getSimpleName(), filePath);
         fileParseTask = executor.runAsync(()->doGrind(filePath,csvDelimiter));
     }
 
@@ -115,7 +117,8 @@ final class InMemoryImpressionExtractor implements AsyncImpressionExtractor {
             IMMUTABLE_HOUR_OF_DAY_IMPRESSIONS = hourOfDayCount.entrySet().stream().map(entry->new HourOfDayImpression(entry.getKey(),entry.getValue())).collect(
                     Collectors.toUnmodifiableSet());
         } catch (Exception e) {
-            LOGGER.error("Error during parsing.", e);
+            LOGGER.error("Error during parsing csv.", e);
+            throw new RuntimeException(e);
         }
 
     }
